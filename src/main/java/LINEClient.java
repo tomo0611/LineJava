@@ -8,13 +8,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 public class LINEClient {
 
     public String authtoken;
     public String certificate;
     public String mid;
-    public LINEClient(){}
+    public TalkService.Client client;
+
+    public LINEClient(String token)throws Exception{
+        authtoken = token;
+        loginWithAuthToken(token);
+    }
 
     public LoginResult loginByQRCode() throws Exception{
         THttpClient transport = new THttpClient("https://gd2.line.naver.jp/api/v4/TalkService.do");
@@ -79,79 +85,67 @@ public class LINEClient {
         transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
         transport.setCustomHeader("X-Line-Access",token);
         TProtocol protocol = new TCompactProtocol(transport);
-        TalkService.Client client = new TalkService.Client(protocol);
+        TalkService.Client myclient = new TalkService.Client(protocol);
         transport.open();
-        mid = client.getProfile().mid;
-        return client;
+        client = myclient;
+        mid = myclient.getProfile().mid;
+        return myclient;
     }
 
-    public AccountSupervisorService.Client getAccountSupervisor(String token) throws Exception{
-        THttpClient transport = new THttpClient("https://gd2.line.naver.jp/JCH4");
-        transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
-        transport.setCustomHeader("X-Line-Access",token);
-        TProtocol protocol = new TCompactProtocol(transport);
-        AccountSupervisorService.Client client = new AccountSupervisorService.Client(protocol);
-        transport.open();
-        return client;
+    public void acceptGroupInvitation(String groupId) throws Exception{
+        client.acceptGroupInvitation(0,groupId);
     }
 
-    public BuddyManagementService.Client getBuddyManagement(String token) throws Exception{
-        THttpClient transport = new THttpClient("https://gd2.line.naver.jp/JBUDDY4");
-        transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
-        transport.setCustomHeader("X-Line-Access",token);
-        TProtocol protocol = new TCompactProtocol(transport);
-        BuddyManagementService.Client client = new BuddyManagementService.Client(protocol);
-        transport.open();
-        return client;
+    public void leaveRoom(String roomId) throws Exception{
+        client.leaveRoom(0,roomId);
     }
 
-    public ChannelService.Client getChannel(String token) throws Exception{
-        THttpClient transport = new THttpClient("https://gd2.line.naver.jp/JCH4");
-        transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
-        transport.setCustomHeader("X-Line-Access",token);
-        TProtocol protocol = new TCompactProtocol(transport);
-        ChannelService.Client client = new ChannelService.Client(protocol);
-        transport.open();
-        return client;
+    public void leaveGroup(String groupId) throws Exception{
+        client.leaveGroup(0,groupId);
     }
 
-    public ShopService.Client getShop(String token) throws Exception{
-        THttpClient transport = new THttpClient("https://gd2.line.naver.jp/JSHOP4");
-        transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
-        transport.setCustomHeader("X-Line-Access",token);
-        TProtocol protocol = new TCompactProtocol(transport);
-        ShopService.Client client = new ShopService.Client(protocol);
-        transport.open();
-        return client;
+    public Contact getContact(String id) throws Exception{
+        return client.getContact(id);
     }
 
-    public SnsAdaptorService.Client getSnsAdaptor(String token) throws Exception{
-        THttpClient transport = new THttpClient("https://gd2.line.naver.jp/JSHOP4");
-        transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
-        transport.setCustomHeader("X-Line-Access",token);
-        TProtocol protocol = new TCompactProtocol(transport);
-        SnsAdaptorService.Client client = new SnsAdaptorService.Client(protocol);
-        transport.open();
-        return client;
+    public Group getGroup(String groupId) throws Exception{
+        return client.getGroup(groupId);
     }
 
-    public UniversalNotificationService.Client getUniversalNotification(String token) throws Exception{
-        THttpClient transport = new THttpClient("https://gd2.line.naver.jp/JSHOP4");
-        transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
-        transport.setCustomHeader("X-Line-Access",token);
-        TProtocol protocol = new TCompactProtocol(transport);
-        UniversalNotificationService.Client client = new UniversalNotificationService.Client(protocol);
-        transport.open();
-        return client;
+    public Group getCompactGroup(String groupId) throws Exception{
+        return client.getCompactGroup(groupId);
     }
 
-    public TalkService.Client getPoll(String token) throws Exception{
-        THttpClient transport = new THttpClient("https://gd2.line.naver.jp/P4");
-        transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
-        transport.setCustomHeader("X-Line-Access",token);
-        TProtocol protocol = new TCompactProtocol(transport);
-        TalkService.Client client = new TalkService.Client(protocol);
-        transport.open();
-        return client;
+    public List<String> getGroupIdsInvited() throws Exception{
+        return client.getGroupIdsInvited();
+    }
+
+    public List<String> getGroupIdsJoined() throws Exception{
+        return client.getGroupIdsJoined();
+    }
+
+    public Profile getProfile() throws Exception{
+        return client.getProfile();
+    }
+
+    public long getLastOpRevision() throws Exception{
+        return client.getLastOpRevision();
+    }
+
+    public void sendText(String to,String text) throws Exception{
+        client.sendMessage(0,new Message().setTo(to).setText(text));
+    }
+
+    public void sendMessage(Message msg) throws Exception{
+        client.sendMessage(0,msg);
+    }
+
+    public void setGroupName(String groupId,String name) throws Exception{
+        Group group = client.getGroup(groupId);
+        client.updateGroup(0,new Group().setId(groupId).setPictureStatus(group.pictureStatus).setPreventedJoinByTicket(group.preventedJoinByTicket).setName(name));
+    }
+
+    public String getGroupURL(String groupMid) throws Exception{
+        return client.reissueGroupTicket(groupMid);
     }
 }
