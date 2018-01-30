@@ -38,3 +38,14 @@ ideaで開くと.ideaというフォルダーが作成されます。
   </artifact>
 </component>
 ```
+
+それからBuild > Build Arfifactsを選択してビルドします
+それからJarが出力されたパスにcdして、java -jar line.jarをすればLogin用のURLが形成されます
+このURLをスマホ版LINEで踏んでログインすればauthtokenを取得できます
+authtokenの情報はご自身で大切に保管してください(authtokenは漏らさないように)
+![Build Without Run Config](https://raw.githubusercontent.com/kaoru-nishida/LineJava/master/ScreenShots/ScreenShot_2018-01-30_14-27-18-01.jpeg)
+
+Run/Debug設定を設定するとより簡単に実行できるようになります
+![Run/Debug Config](https://raw.githubusercontent.com/kaoru-nishida/LineJava/master/ScreenShots/ScreenShot_2018-01-30_14-30-36.png)
+このように設定して上部バーの実行ボタンの横でLINEを選択すると実行ボタンを押すだけで実行できるようなります
+![RUn With Eun Config](https://raw.githubusercontent.com/kaoru-nishida/LineJava/master/ScreenShots/ScreenShot_2018-01-30_14-30-20.png)
