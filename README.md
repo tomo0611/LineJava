@@ -1,3 +1,7 @@
+<head>
+<script type="text/javascript" src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+
 # LineJava
 Naver's line API for Java
 
@@ -7,7 +11,6 @@ Naver's line API for Java
 Line API for JavaはPythonより高速なLineのBotの作成を可能にします
 
 # 使い方
-<script type="text/javascript" src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 Main.javaを編集します
 <pre class="prettyprint">
 // LINEClientの作成
