@@ -129,8 +129,8 @@ public class Main {
                                 if (op.message.contentType.equals(ContentType.NONE)) {
                                     if (op.message.text.toLowerCase().equals("help")) {
                                         String msg = getString("help_message",getLangCodeByGid(op.message.to))
-                                                .replace("%d","2018-01-29 23:08")
-                                                .replace("%b","15008")
+                                                .replace("%d","2018-01-31 02:19")
+                                                .replace("%b","15018")
                                                 .replace("%t","BETA")
                                                 .replace("%supporturl","https://twitter.com/tomo_linebot");
                                         if (op.message.toType == MIDType.GROUP) {
