@@ -1,7 +1,3 @@
-<head>
-<script type="text/javascript" src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
-</head>
-
 # LineJava
 Naver's line API for Java
 
@@ -12,18 +8,23 @@ Line API for JavaはPythonより高速なLineのBotの作成を可能にしま�
 
 # 使い方
 Main.javaを編集します
-<pre class="prettyprint">
+
+ここにあるのはあくまで一例です
+
+```
 // LINEClientの作成
-new LINEClient("authtoken");
+LINEClient client = new LINEClient("authtoken");
 //テキスト送信
 client.sendText("宛先", "メッセージ");
 //テキスト送信にも使用可能だが、より高度なメッセージの送信に使う
 client.sendMessage("宛先", new Message().setTo("宛先").setText("メッセージ"));
-</pre>
+```
 
 LINEClient.java内にある関数が利用可能です
 
 詳しくはそちらをご覧ください
+
+Javaで動くものなら組み込めるのでMCBE ServerのNUkkitやJupiterにも組み込めるよ！
 
 
 # ビルド
