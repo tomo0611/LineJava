@@ -6,6 +6,23 @@ Naver's line API for Java
 # 概要
 Line API for JavaはPythonより高速なLineのBotの作成を可能にします
 
+# 使い方
+<script type="text/javascript" src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+Main.javaを編集します
+<pre class="prettyprint">
+// LINEClientの作成
+new LINEClient("authtoken");
+//テキスト送信
+client.sendText("宛先", "メッセージ");
+//テキスト送信にも使用可能だが、より高度なメッセージの送信に使う
+client.sendMessage("宛先", new Message().setTo("宛先").setText("メッセージ"));
+</pre>
+
+LINEClient.java内にある関数が利用可能です
+
+詳しくはそちらをご覧ください
+
+
 # ビルド
 これは[Intellij IDEA](https://www.jetbrains.com/idea/download)を使うことを前提とされています
 
@@ -53,6 +70,8 @@ ideaで開くと.ideaというフォルダーが作成されます。
 
 authtokenの情報はご自身で大切に保管してください(authtokenは漏らさないように)
 
+二度目以降はjava -jar line.jar authtokenとするとまたリンクを踏む必要がなくなります
+
 ![Build Without Run Config](https://raw.githubusercontent.com/kaoru-nishida/LineJava/master/ScreenShots/ScreenShot_2018-01-30_14-27-18-01.jpeg)
 
 Run/Debug設定を設定するとより簡単に実行できるようになります
@@ -61,4 +80,4 @@ Run/Debug設定を設定するとより簡単に実行できるようになり�
 
 このように設定して上部バーの実行ボタンの横でLINEを選択すると実行ボタンを押すだけで実行できるようなります
 
-![RUn With Eun Config](https://raw.githubusercontent.com/kaoru-nishida/LineJava/master/ScreenShots/ScreenShot_2018-01-30_14-30-20.png)
+![Run With Eun Config](https://raw.githubusercontent.com/kaoru-nishida/LineJava/master/ScreenShots/ScreenShot_2018-01-30_14-30-20.png)
