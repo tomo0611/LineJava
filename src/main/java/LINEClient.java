@@ -92,6 +92,10 @@ public class LINEClient {
         return myclient;
     }
 
+    public TalkService.Client getTalkService(){
+        return client;
+    }
+
     public void acceptGroupInvitation(String groupId) throws Exception{
         client.acceptGroupInvitation(0,groupId);
     }

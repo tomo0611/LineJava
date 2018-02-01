@@ -247,7 +247,7 @@ public class Main {
                                             } else {
                                                 String readers_data = "";
                                                 for (int count1 = 0; count1 < read.get(op.message.to).size(); count1++) {
-                                                    readers_data = readers_data + getString("invited_users",getLangCodeByGid(op.message.to)).replace("%s",client.getContact(read.get(op.message.to).get(count1)).displayName);
+                                                    readers_data = readers_data + getString("name",getLangCodeByGid(op.message.to)).replace("%s",client.getContact(read.get(op.message.to).get(count1)).displayName);
                                                 }
                                                 client.sendText(op.message.to, getString("read_users",getLangCodeByGid(op.message.to)).replace("%s",readers_data));
                                             }
