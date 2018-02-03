@@ -11,7 +11,7 @@
   "blocked_invitng_by_url":"%sさんがURL招待をブロックしました",
   "allowed_invitng_by_url":"%sさんがURL招待を許可しました",
   "changed_notification_setting":"%sさんが通知設定を変更しました",
-  "help_message":"このボットのコマンドを教えるね！\n\n[help]\nヘルプを送信\n[whoread]\n誰が既読したか(初回時は正しい結果が出ないことがあります)\n[reset]\n既読地点を更新します\n[mid]\n自分のmidを送信します\n[gid]\ngid(midの一種)を送信します\n[ginfo]\nグループ情報を取得します\n[geturl]\nグルのURLを発行します\n[グル名 into gname]\nグループ名を変更します\n(グル名 > gnameでも可能です)\n[howinv]\nグループに何人招待されているかを取得します\n[stkinfo]\n送信されたスタンプの詳細情報を取得します\n[speed]\nBotの反応時間を取得します\n[sencon:mid]\n指定されたmidの連絡先を送信します(midは任意のものに置き換えてください)\n[leave here]\nグループを退出します\n\n[その他の機能]\n連絡先の詳細を送信\nTL共有時に情報の送信\n通話の開始と終了をお知らせ\nグループボード作成時に情報の送信\n\n最終更新：%d\nビルド：%b %t\n・質問やサポートはこちらから\n%supporturl",
+  "help_message":"このボットのコマンドを教えるね！\n\n[help]\nヘルプを送信\n[whoread]\n誰が既読したか(初回時は正しい結果が出ないことがあります)\n[reset]\n既読地点を更新します\n[mid]\n自分のmidを送信します\n[gid]\ngid(midの一種)を送信します\n[ginfo]\nグループ情報を取得します\n[geturl]\nグルのURLを発行します\n[グル名 into gname]\nグループ名を変更します\n(グル名 > gnameでも可能です)\n[howinv]\nグループに何人招待されているかを取得します\n[stkinfo]\n送信されたスタンプの詳細情報を取得します\n[speed]\nBotの反応時間を取得します\n[sencon:mid]\n指定されたmidの連絡先を送信します(midは任意のものに置き換えてください)\n[leave here]\nグループを退出します\n\n[その他の機能]\n連絡先の詳細を送信\nTL共有時に情報の送信\n通話の開始と終了をお知らせ\nグループボード作成時に情報の送信\n\n・注意--コマンドの実行間隔は3秒以上開けてください\nまれに夜、メンテナンスしていることがあります。ご了承ください。\n\n最終更新：%d\nビルド：%b %t\n・質問やサポートはこちらから\n%supporturl",
   "bath":"風呂",
   "good_for_working":"(*´◇｀)＜おつとめご苦労さまでした。\n本日は、爽やかな香りの柚子風呂がございますよ❤\n…あ、わたくしが入っているわけではなく！\nぁゎゎ；",
   "imhungry":"ハラ減った",

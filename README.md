@@ -3,6 +3,31 @@ Naver's line API for Java
 
 これらの作成にはLINE Corporationは一切関連しておりません
 
+For PC Intellij IDEA (https://www.jetbrains.com/idea/download)
+
+
+    A : How use in VPS?
+
+
+    B : 
+
+    sudo apt-get install python-software-properties
+
+
+    sudo add-apt-repository ppa:webupd8team/java
+
+
+    sudo apt-get update
+    
+    
+    sudo apt-get install openjdk-7-jdk
+
+
+    java -version
+    
+    
+    Then, cd to Examples->, java -jar line.jar
+
 # 概要
 Line API for JavaはPythonより高速なLineのBotの作成を可能にします
 

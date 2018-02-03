@@ -14,6 +14,7 @@ public class Main {
     public static HashMap<String, List<String>> read = new HashMap<>();
     public static HashMap<String, Boolean> sticker_status = new HashMap<>();
     public static HashMap<String, String> lang = new HashMap<>();
+    public static HashMap<String, Long> fix_spam = new HashMap<>();
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -42,16 +43,16 @@ public class Main {
         }
 
         String token = "";
-        if (args.length == 0) {
+        /*if (args.length == 0) {
             String authtoken = loginByQRCode().authToken;
             token = authtoken;
             System.out.println("これからauthtokenを実行時の引数に追加してください");
             System.out.println("例：java -jar line.jar authtoken");
         } else {
             token = args[0];
-        }
+        }*/
         System.out.println("Try this token : " + token);
-        LINEClient client = new LINEClient(token);
+        LINEClient client = new LINEClient(LINEClient.LoginBy.QRCODE,"");
         System.out.println("displayName : " + client.getProfile().displayName);
         System.out.println("mid : " + client.getProfile().mid);
         System.out.println("authtoken : " + client.authtoken + "\n");
@@ -63,6 +64,7 @@ public class Main {
         for (String gid : gids) {
             read.put(gid, new ArrayList<>());
             sticker_status.put(gid, false);
+            fix_spam.put(gid,new Long(0).longValue());
         }
         THttpClient shop_transport = new THttpClient("https://gd2.line.naver.jp/SHOP4");
         shop_transport.setCustomHeader("X-Line-Application", "DESKTOPWIN\t7.18.1\tYUZU\t11.2.5");
@@ -127,169 +129,213 @@ public class Main {
                             case SEND_MESSAGE:
                             case RECEIVE_MESSAGE:
                                 if (op.message.contentType.equals(ContentType.NONE)) {
-                                    if (op.message.text.toLowerCase().equals("help")) {
-                                        String msg = getString("help_message",getLangCodeByGid(op.message.to))
-                                                .replace("%d","2018-01-31 02:19")
-                                                .replace("%b","15018")
-                                                .replace("%t","BETA")
-                                                .replace("%supporturl","https://twitter.com/tomo_linebot");
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, msg);
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, msg);
-                                        }
-                                    } else if (op.message.text.toLowerCase().contains("setlang:")) {
-                                        String lang_code = "ja";
-                                        if(op.message.text.toLowerCase().replace("setlang:","").equals("ja")){
-                                            lang_code = "ja";
-                                        } else if(op.message.text.toLowerCase().replace("setlang:","").equals("en")){
-                                            lang_code = "en";
-                                        }
-                                        if(lang.containsKey(op.message.to)){
-                                            lang.remove(op.message.to);
-                                            lang.put(op.message.to,lang_code);
-                                        }else{
-                                            lang.put(op.message.to,lang_code);
-                                        }
-                                        client.sendText(op.message.to,"Changed Language.");
-                                    } else if (op.message.text.contains(getString("bath",getLangCodeByGid(op.message.to)))) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, getString("good_for_working",getLangCodeByGid(op.message.to)));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("good_for_working",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.contains(getString("imhungry",getLangCodeByGid(op.message.to)))) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, getString("prepaired_dinner",getLangCodeByGid(op.message.to)));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("prepaired_dinner",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.contains(getString("good_morning",getLangCodeByGid(op.message.to)))) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, getString("good_morning_msg",getLangCodeByGid(op.message.to)));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("good_morning_msg",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.contains(getString("job",getLangCodeByGid(op.message.to))) && op.message.text.toLowerCase().contains(getString("tired",getLangCodeByGid(op.message.to)))) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, getString("bath_cleaning",getLangCodeByGid(op.message.to)));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("bath_cleaning",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.toLowerCase().equals("speed")) {
-                                        long systime = System.currentTimeMillis();
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, getString("speed_result",getLangCodeByGid(op.message.to)).replace("%s",(systime - op.createdTime)+""));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("speed_result",getLangCodeByGid(op.message.to)).replace("%s",(systime - op.createdTime)+""));
-                                        }
-                                    } else if (op.message.text.toLowerCase().equals("gid")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, op.message.to);
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("does_not_exists_gid",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.toLowerCase().equals("mid")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, op.message._from);
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, op.message._from);
-                                        }
-                                    } else if (op.message.text.toLowerCase().equals("reset")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            read.get(op.message.to).clear();
-                                            client.sendText(op.message.to, getString("reset_readers_list",getLangCodeByGid(op.message.to)));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.toLowerCase().equals("ginfo")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            Group group = client.getGroup(op.message.to);
-                                            boolean notexists = false;
-                                            if (!group.members.contains(group.creator)) {
-                                                notexists = true;
-                                            }
-                                            if (group.preventedJoinByTicket == false) {
-                                                if (notexists) {
-                                                    client.sendText(op.message.to,
-                                                            getString("ginfo_1",getLangCodeByGid(op.message.to)).replace("%s",group.name).replace("%t",group.id).replace("%u",group.creator.displayName).replace("%v",group.members.get(0).displayName).replace("%w",group.pictureStatus));
+                                    if(fix_spam.containsKey(op.message.to)) {
+                                        if (fix_spam.get(op.message.to) + 3000 < op.message.createdTime) {
+                                            if (op.message.text.toLowerCase().equals("help")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                String msg = getString("help_message", getLangCodeByGid(op.message.to))
+                                                        .replace("%d", "2018-02-03 00:36")
+                                                        .replace("%b", "15048")
+                                                        .replace("%t", "RELEASE")
+                                                        .replace("%supporturl", "https://twitter.com/kaoru_nish");
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, msg);
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, msg);
+                                                }
+                                            } else if (op.message.text.toLowerCase().contains("setlang:")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                String lang_code = "ja";
+                                                if (op.message.text.toLowerCase().replace("setlang:", "").equals("ja")) {
+                                                    lang_code = "ja";
+                                                } else if (op.message.text.toLowerCase().replace("setlang:", "").equals("en")) {
+                                                    lang_code = "en";
+                                                }
+                                                if (lang.containsKey(op.message.to)) {
+                                                    lang.remove(op.message.to);
+                                                    lang.put(op.message.to, lang_code);
                                                 } else {
-                                                    client.sendText(op.message.to,
-                                                            getString("ginfo_2",getLangCodeByGid(op.message.to)).replace("%s",group.name).replace("%t",group.id).replace("%u",group.creator.displayName).replace("%v",group.pictureStatus));
+                                                    lang.put(op.message.to, lang_code);
                                                 }
-                                            } else {
-                                                if (notexists) {
-                                                    client.sendText(op.message.to,
-                                                            getString("ginfo_3",getLangCodeByGid(op.message.to)).replace("%s",group.name).replace("%t",group.id).replace("%u",group.creator.displayName).replace("%v",group.members.get(0).displayName).replace("%w",group.pictureStatus));
-                                                } else {
-                                                    client.sendText(op.message.to,
-                                                            getString("ginfo_4",getLangCodeByGid(op.message.to)).replace("%s",group.name).replace("%t",group.id).replace("%u",group.creator.displayName).replace("%v",group.pictureStatus));
+                                                client.sendText(op.message.to, "Changed Language.");
+                                            } else if (op.message.text.toLowerCase().equals("time")) {
+                                                //1517583194031
+                                                //1517583194267
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+
+                                                System.out.println(op.message.createdTime);
+                                                System.out.println(System.currentTimeMillis());
+                                            } else if (op.message.text.contains(getString("bath", getLangCodeByGid(op.message.to)))) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, getString("good_for_working", getLangCodeByGid(op.message.to)));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("good_for_working", getLangCodeByGid(op.message.to)));
                                                 }
-                                            }
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.toLowerCase().equals("howinv")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            List<Contact> invs = client.getGroup(op.message.to).invitee;
-                                            if (invs == null) {
-                                                client.sendText(op.message.to, getString("no_bady_invited",getLangCodeByGid(op.message.to)));
-                                            } else {
-                                                client.sendText(op.message.to, getString("invited_users",getLangCodeByGid(op.message.to)).replace("%s",invs.size()+""));
-                                            }
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.replace(" ", "").replace("?", "").toLowerCase().equals("whoread")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            if (read.get(op.message.to).isEmpty()) {
-                                                client.sendText(op.message.to, getString("no_bady_read",getLangCodeByGid(op.message.to)));
-                                            } else {
-                                                String readers_data = "";
-                                                for (int count1 = 0; count1 < read.get(op.message.to).size(); count1++) {
-                                                    readers_data = readers_data + getString("name",getLangCodeByGid(op.message.to)).replace("%s",client.getContact(read.get(op.message.to).get(count1)).displayName);
+                                            } else if (op.message.text.contains(getString("imhungry", getLangCodeByGid(op.message.to)))) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, getString("prepaired_dinner", getLangCodeByGid(op.message.to)));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("prepaired_dinner", getLangCodeByGid(op.message.to)));
                                                 }
-                                                client.sendText(op.message.to, getString("read_users",getLangCodeByGid(op.message.to)).replace("%s",readers_data));
-                                            }
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.contains(" into gname")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            if (client.getGroup(op.message.to).name.equals(op.message.text.replace(" into gname", ""))) {
-                                                client.sendText(op.message.to, getString("use_other_name",getLangCodeByGid(op.message.to)));
-                                            } else {
-                                                client.setGroupName(op.message.to, op.message.text.replace(" into gname", ""));
-                                                client.sendText(op.param1, getString("i_changed_group_name",getLangCodeByGid(op.message.to)));
-                                            }
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.contains(" > gname")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            if (client.getGroup(op.message.to).name.equals(op.message.text.replace(" > gname", ""))) {
-                                                client.sendText(op.message.to, getString("use_other_name",getLangCodeByGid(op.message.to)));
-                                            } else {
-                                                client.setGroupName(op.message.to, op.message.text.replace(" > gname", ""));
-                                                client.sendText(op.param1, getString("i_changed_group_name",getLangCodeByGid(op.message.to)));
-                                            }
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.toLowerCase().contains("geturl")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, getString("i_reissued_glink",getLangCodeByGid(op.message.to)).replace("%s",client.getGroupURL(op.message.to)));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.toLowerCase().equals("stkinfo")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            sticker_status.remove(op.message.to);
-                                            sticker_status.put(op.message.to, true);
-                                            client.sendText(op.message.to, getString("send_stk",getLangCodeByGid(op.message.to)));
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
+                                            } else if (op.message.text.contains(getString("good_morning", getLangCodeByGid(op.message.to)))) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, getString("good_morning_msg", getLangCodeByGid(op.message.to)));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("good_morning_msg", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.contains(getString("job", getLangCodeByGid(op.message.to))) && op.message.text.toLowerCase().contains(getString("tired", getLangCodeByGid(op.message.to)))) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, getString("bath_cleaning", getLangCodeByGid(op.message.to)));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("bath_cleaning", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.toLowerCase().equals("speed")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                long systime = System.currentTimeMillis();
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, getString("speed_result", getLangCodeByGid(op.message.to)).replace("%s", (systime - op.createdTime) + ""));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("speed_result", getLangCodeByGid(op.message.to)).replace("%s", (systime - op.createdTime) + ""));
+                                                }
+                                            } else if (op.message.text.toLowerCase().equals("gid")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, op.message.to);
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("does_not_exists_gid", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.toLowerCase().equals("mid")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, op.message._from);
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, op.message._from);
+                                                }
+                                            } else if (op.message.text.toLowerCase().equals("reset")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    read.get(op.message.to).clear();
+                                                    client.sendText(op.message.to, getString("reset_readers_list", getLangCodeByGid(op.message.to)));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.toLowerCase().equals("ginfo")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    Group group = client.getGroup(op.message.to);
+                                                    boolean notexists = false;
+                                                    if (!group.members.contains(group.creator)) {
+                                                        notexists = true;
+                                                    }
+                                                    if (group.preventedJoinByTicket == false) {
+                                                        if (notexists) {
+                                                            client.sendText(op.message.to,
+                                                                    getString("ginfo_1", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.members.get(0).displayName).replace("%w", group.pictureStatus));
+                                                        } else {
+                                                            client.sendText(op.message.to,
+                                                                    getString("ginfo_2", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.pictureStatus));
+                                                        }
+                                                    } else {
+                                                        if (notexists) {
+                                                            client.sendText(op.message.to,
+                                                                    getString("ginfo_3", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.members.get(0).displayName).replace("%w", group.pictureStatus));
+                                                        } else {
+                                                            client.sendText(op.message.to,
+                                                                    getString("ginfo_4", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.pictureStatus));
+                                                        }
+                                                    }
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.toLowerCase().equals("howinv")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    List<Contact> invs = client.getGroup(op.message.to).invitee;
+                                                    if (invs == null) {
+                                                        client.sendText(op.message.to, getString("no_bady_invited", getLangCodeByGid(op.message.to)));
+                                                    } else {
+                                                        client.sendText(op.message.to, getString("invited_users", getLangCodeByGid(op.message.to)).replace("%s", invs.size() + ""));
+                                                    }
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.replace(" ", "").replace("?", "").toLowerCase().equals("whoread")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    if (read.get(op.message.to).isEmpty()) {
+                                                        client.sendText(op.message.to, getString("no_bady_read", getLangCodeByGid(op.message.to)));
+                                                    } else {
+                                                        String readers_data = "";
+                                                        for (int count1 = 0; count1 < read.get(op.message.to).size(); count1++) {
+                                                            readers_data = readers_data + getString("name", getLangCodeByGid(op.message.to)).replace("%s", client.getContact(read.get(op.message.to).get(count1)).displayName);
+                                                        }
+                                                        client.sendText(op.message.to, getString("read_users", getLangCodeByGid(op.message.to)).replace("%s", readers_data));
+                                                    }
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.contains(" into gname")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    if (client.getGroup(op.message.to).name.equals(op.message.text.replace(" into gname", ""))) {
+                                                        client.sendText(op.message.to, getString("use_other_name", getLangCodeByGid(op.message.to)));
+                                                    } else {
+                                                        client.setGroupName(op.message.to, op.message.text.replace(" into gname", ""));
+                                                        client.sendText(op.param1, getString("i_changed_group_name", getLangCodeByGid(op.message.to)));
+                                                    }
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.contains(" > gname")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    if (client.getGroup(op.message.to).name.equals(op.message.text.replace(" > gname", ""))) {
+                                                        client.sendText(op.message.to, getString("use_other_name", getLangCodeByGid(op.message.to)));
+                                                    } else {
+                                                        client.setGroupName(op.message.to, op.message.text.replace(" > gname", ""));
+                                                        client.sendText(op.param1, getString("i_changed_group_name", getLangCodeByGid(op.message.to)));
+                                                    }
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.toLowerCase().contains("geturl")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, getString("i_reissued_glink", getLangCodeByGid(op.message.to)).replace("%s", client.getGroupURL(op.message.to)));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.toLowerCase().equals("stkinfo")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    sticker_status.remove(op.message.to);
+                                                    sticker_status.put(op.message.to, true);
+                                                    client.sendText(op.message.to, getString("send_stk", getLangCodeByGid(op.message.to)));
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
                                         /*} else if (op.message.text.toLowerCase().equals("占い")) {
                                         List<String> colors = new ArrayList<>();
                                         colors.add("赤");
@@ -302,29 +348,261 @@ public class Main {
                                         Random rnd = new Random();
                                         String color = colors.get(rnd.nextInt(colors.size()));
                                         client.sendText(op.message.to, "(*´ヮ｀)＜あなたのラッキーカラーは" + color + "色です！");*/
-                                    } else if (op.message.text.toLowerCase().equals("leave here")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            client.sendText(op.message.to, getString("good_for_meeting_you",getLangCodeByGid(op.message.to)));
-                                            read.remove(op.message.to);
-                                            sticker_status.remove(op.message.to);
-                                            client.leaveGroup(op.message.to);
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
-                                        }
-                                    } else if (op.message.text.toLowerCase().contains("sencon:")) {
-                                        if (op.message.toType == MIDType.GROUP) {
-                                            String req_mid = op.message.text.toLowerCase().replace("sencon:", "");
-                                            try {
-                                                Contact contact = client.getContact(req_mid);
-                                                Map<String, String> map = new HashMap<>();
-                                                map.put("mid", contact.mid);
-                                                map.put("displayName", contact.displayName);
-                                                client.sendMessage(new Message().setTo(op.message.to).setContentType(ContentType.CONTACT).setContentMetadata(map));
-                                            } catch (Exception e) {
-                                                client.sendText(op.message.to, getString("user_does_not_exist",getLangCodeByGid(op.message.to)));
+                                            } else if (op.message.text.toLowerCase().equals("leave here")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    client.sendText(op.message.to, getString("good_for_meeting_you", getLangCodeByGid(op.message.to)));
+                                                    read.remove(op.message.to);
+                                                    sticker_status.remove(op.message.to);
+                                                    client.leaveGroup(op.message.to);
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.text.toLowerCase().contains("sencon:")) {
+                                                fix_spam.remove(op.message.to);
+                                                fix_spam.put(op.message.to, op.message.createdTime);
+                                                if (op.message.toType == MIDType.GROUP) {
+                                                    String req_mid = op.message.text.toLowerCase().replace("sencon:", "");
+                                                    try {
+                                                        Contact contact = client.getContact(req_mid);
+                                                        Map<String, String> map = new HashMap<>();
+                                                        map.put("mid", contact.mid);
+                                                        map.put("displayName", contact.displayName);
+                                                        client.sendMessage(new Message().setTo(op.message.to).setContentType(ContentType.CONTACT).setContentMetadata(map));
+                                                    } catch (Exception e) {
+                                                        client.sendText(op.message.to, getString("user_does_not_exist", getLangCodeByGid(op.message.to)));
+                                                    }
+                                                } else if (op.message.toType == MIDType.USER) {
+                                                    client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                                }
                                             }
-                                        } else if (op.message.toType == MIDType.USER) {
-                                            client.sendText(op.message._from, getString("this_command_does_not_supported",getLangCodeByGid(op.message.to)));
+                                        }
+                                    }else{
+                                        if (op.message.text.toLowerCase().equals("help")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            String msg = getString("help_message", getLangCodeByGid(op.message.to))
+                                                    .replace("%d", "2018-02-03 00:38")
+                                                    .replace("%b", "15048")
+                                                    .replace("%t", "RELEASE")
+                                                    .replace("%supporturl", "https://twitter.com/kaoru_nish");
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, msg);
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, msg);
+                                            }
+                                        } else if (op.message.text.toLowerCase().contains("setlang:")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            String lang_code = "ja";
+                                            if (op.message.text.toLowerCase().replace("setlang:", "").equals("ja")) {
+                                                lang_code = "ja";
+                                            } else if (op.message.text.toLowerCase().replace("setlang:", "").equals("en")) {
+                                                lang_code = "en";
+                                            }
+                                            if (lang.containsKey(op.message.to)) {
+                                                lang.remove(op.message.to);
+                                                lang.put(op.message.to, lang_code);
+                                            } else {
+                                                lang.put(op.message.to, lang_code);
+                                            }
+                                            client.sendText(op.message.to, "Changed Language.");
+                                        } else if (op.message.text.toLowerCase().equals("time")) {
+                                            //1517583194031
+                                            //1517583194267
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+
+                                            System.out.println(op.message.createdTime);
+                                            System.out.println(System.currentTimeMillis());
+                                        } else if (op.message.text.contains(getString("bath", getLangCodeByGid(op.message.to)))) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, getString("good_for_working", getLangCodeByGid(op.message.to)));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("good_for_working", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.contains(getString("imhungry", getLangCodeByGid(op.message.to)))) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, getString("prepaired_dinner", getLangCodeByGid(op.message.to)));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("prepaired_dinner", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.contains(getString("good_morning", getLangCodeByGid(op.message.to)))) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, getString("good_morning_msg", getLangCodeByGid(op.message.to)));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("good_morning_msg", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.contains(getString("job", getLangCodeByGid(op.message.to))) && op.message.text.toLowerCase().contains(getString("tired", getLangCodeByGid(op.message.to)))) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, getString("bath_cleaning", getLangCodeByGid(op.message.to)));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("bath_cleaning", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.toLowerCase().equals("speed")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            long systime = System.currentTimeMillis();
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, getString("speed_result", getLangCodeByGid(op.message.to)).replace("%s", (systime - op.createdTime) + ""));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("speed_result", getLangCodeByGid(op.message.to)).replace("%s", (systime - op.createdTime) + ""));
+                                            }
+                                        } else if (op.message.text.toLowerCase().equals("gid")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, op.message.to);
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("does_not_exists_gid", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.toLowerCase().equals("mid")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, op.message._from);
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, op.message._from);
+                                            }
+                                        } else if (op.message.text.toLowerCase().equals("reset")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                read.get(op.message.to).clear();
+                                                client.sendText(op.message.to, getString("reset_readers_list", getLangCodeByGid(op.message.to)));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.toLowerCase().equals("ginfo")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                Group group = client.getGroup(op.message.to);
+                                                boolean notexists = false;
+                                                if (!group.members.contains(group.creator)) {
+                                                    notexists = true;
+                                                }
+                                                if (group.preventedJoinByTicket == false) {
+                                                    if (notexists) {
+                                                        client.sendText(op.message.to,
+                                                                getString("ginfo_1", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.members.get(0).displayName).replace("%w", group.pictureStatus));
+                                                    } else {
+                                                        client.sendText(op.message.to,
+                                                                getString("ginfo_2", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.pictureStatus));
+                                                    }
+                                                } else {
+                                                    if (notexists) {
+                                                        client.sendText(op.message.to,
+                                                                getString("ginfo_3", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.members.get(0).displayName).replace("%w", group.pictureStatus));
+                                                    } else {
+                                                        client.sendText(op.message.to,
+                                                                getString("ginfo_4", getLangCodeByGid(op.message.to)).replace("%s", group.name).replace("%t", group.id).replace("%u", group.creator.displayName).replace("%v", group.pictureStatus));
+                                                    }
+                                                }
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.toLowerCase().equals("howinv")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                List<Contact> invs = client.getGroup(op.message.to).invitee;
+                                                if (invs == null) {
+                                                    client.sendText(op.message.to, getString("no_bady_invited", getLangCodeByGid(op.message.to)));
+                                                } else {
+                                                    client.sendText(op.message.to, getString("invited_users", getLangCodeByGid(op.message.to)).replace("%s", invs.size() + ""));
+                                                }
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.replace(" ", "").replace("?", "").toLowerCase().equals("whoread")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                if (read.get(op.message.to).isEmpty()) {
+                                                    client.sendText(op.message.to, getString("no_bady_read", getLangCodeByGid(op.message.to)));
+                                                } else {
+                                                    String readers_data = "";
+                                                    for (int count1 = 0; count1 < read.get(op.message.to).size(); count1++) {
+                                                        readers_data = readers_data + getString("name", getLangCodeByGid(op.message.to)).replace("%s", client.getContact(read.get(op.message.to).get(count1)).displayName);
+                                                    }
+                                                    client.sendText(op.message.to, getString("read_users", getLangCodeByGid(op.message.to)).replace("%s", readers_data));
+                                                }
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.contains(" into gname")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                if (client.getGroup(op.message.to).name.equals(op.message.text.replace(" into gname", ""))) {
+                                                    client.sendText(op.message.to, getString("use_other_name", getLangCodeByGid(op.message.to)));
+                                                } else {
+                                                    client.setGroupName(op.message.to, op.message.text.replace(" into gname", ""));
+                                                    client.sendText(op.param1, getString("i_changed_group_name", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.contains(" > gname")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                if (client.getGroup(op.message.to).name.equals(op.message.text.replace(" > gname", ""))) {
+                                                    client.sendText(op.message.to, getString("use_other_name", getLangCodeByGid(op.message.to)));
+                                                } else {
+                                                    client.setGroupName(op.message.to, op.message.text.replace(" > gname", ""));
+                                                    client.sendText(op.param1, getString("i_changed_group_name", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.toLowerCase().contains("geturl")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, getString("i_reissued_glink", getLangCodeByGid(op.message.to)).replace("%s", client.getGroupURL(op.message.to)));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.toLowerCase().equals("stkinfo")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                sticker_status.remove(op.message.to);
+                                                sticker_status.put(op.message.to, true);
+                                                client.sendText(op.message.to, getString("send_stk", getLangCodeByGid(op.message.to)));
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        /*} else if (op.message.text.toLowerCase().equals("占い")) {
+                                        List<String> colors = new ArrayList<>();
+                                        colors.add("赤");
+                                        colors.add("ピンク");
+                                        colors.add("黄");
+                                        colors.add("青");
+                                        colors.add("水");
+                                        colors.add("緑");
+                                        colors.add("灰");
+                                        Random rnd = new Random();
+                                        String color = colors.get(rnd.nextInt(colors.size()));
+                                        client.sendText(op.message.to, "(*´ヮ｀)＜あなたのラッキーカラーは" + color + "色です！");*/
+                                        } else if (op.message.text.toLowerCase().equals("leave here")) {
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                client.sendText(op.message.to, getString("good_for_meeting_you", getLangCodeByGid(op.message.to)));
+                                                read.remove(op.message.to);
+                                                sticker_status.remove(op.message.to);
+                                                client.leaveGroup(op.message.to);
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
+                                        } else if (op.message.text.toLowerCase().contains("sencon:")) {
+                                            fix_spam.put(op.message.to, op.message.createdTime);
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                String req_mid = op.message.text.toLowerCase().replace("sencon:", "");
+                                                try {
+                                                    Contact contact = client.getContact(req_mid);
+                                                    Map<String, String> map = new HashMap<>();
+                                                    map.put("mid", contact.mid);
+                                                    map.put("displayName", contact.displayName);
+                                                    client.sendMessage(new Message().setTo(op.message.to).setContentType(ContentType.CONTACT).setContentMetadata(map));
+                                                } catch (Exception e) {
+                                                    client.sendText(op.message.to, getString("user_does_not_exist", getLangCodeByGid(op.message.to)));
+                                                }
+                                            } else if (op.message.toType == MIDType.USER) {
+                                                client.sendText(op.message._from, getString("this_command_does_not_supported", getLangCodeByGid(op.message.to)));
+                                            }
                                         }
                                     }
                                 } else if (op.message.contentType.equals(ContentType.CALL)) {
@@ -359,9 +637,15 @@ public class Main {
                                         }
                                     }
                                 } else if (op.message.contentType.equals(ContentType.CONTACT)) {
-                                    if (op.message.toType == MIDType.GROUP) {
-                                        Contact contact = client.getContact(op.message.contentMetadata.get("mid"));
-                                        client.sendText(op.message.to, "[mid]\n" + contact.mid + "\n\n[displayName]\n" + contact.displayName + "\n\n[statusMessage]\n" + contact.statusMessage + "\n\n[picturePath]\nhttps://profile.line-scdn.net" + contact.picturePath);
+                                    fix_spam.remove(op.message.to);
+                                    fix_spam.put(op.message.to, op.message.createdTime);
+                                    if(fix_spam.containsKey(op.message.to)) {
+                                        if (fix_spam.get(op.message.to) + 3000 < op.message.createdTime) {
+                                            if (op.message.toType == MIDType.GROUP) {
+                                                Contact contact = client.getContact(op.message.contentMetadata.get("mid"));
+                                                client.sendText(op.message.to, "[mid]\n" + contact.mid + "\n\n[displayName]\n" + contact.displayName + "\n\n[statusMessage]\n" + contact.statusMessage + "\n\n[picturePath]\nhttps://profile.line-scdn.net" + contact.picturePath);
+                                            }
+                                        }
                                     }
                                 } else if (op.message.contentType.equals(ContentType.POSTNOTIFICATION)) {
                                     if (op.message.toType == MIDType.GROUP) {

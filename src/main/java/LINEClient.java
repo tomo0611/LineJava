@@ -12,14 +12,26 @@ import java.util.List;
 
 public class LINEClient {
 
-    public String authtoken;
-    public String certificate;
-    public String mid;
+    public String authtoken = "";
+    public String certificate = "";
+    public String mid = "";
     public TalkService.Client client;
 
-    public LINEClient(String token)throws Exception{
-        authtoken = token;
-        loginWithAuthToken(token);
+    private String code = "";
+
+    public LINEClient(LoginBy type,String code)throws Exception{
+        switch (type){
+            case QRCODE:
+                loginByQRCode();
+                break;
+            case CREDENTIAL:
+                certificate = code;
+                break;
+            case TOKEN:
+                authtoken = code;
+                loginWithAuthToken(code);
+                break;
+        }
     }
 
     public LoginResult loginByQRCode() throws Exception{
@@ -77,6 +89,9 @@ public class LINEClient {
         transport.close();
         authtoken = loginresult.authToken;
         certificate = loginresult.certificate;
+        System.out.println("(*´ヮ｀)＜Login成功しました メモとかしとくことをおすすめします");
+        System.out.println("authtoken : "+authtoken);
+        System.out.println("certificate : "+certificate);
         return loginresult;
     }
 
@@ -90,6 +105,12 @@ public class LINEClient {
         client = myclient;
         mid = myclient.getProfile().mid;
         return myclient;
+    }
+
+    public enum LoginBy{
+        CREDENTIAL,
+        QRCODE,
+        TOKEN
     }
 
     public TalkService.Client getTalkService(){
