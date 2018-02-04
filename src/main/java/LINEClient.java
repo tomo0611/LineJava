@@ -129,6 +129,12 @@ public class LINEClient {
         client.leaveRoom(0,roomId);
     }
 
+    public void kickoutFromGroup(String gid,String mid) throws Exception{
+        List<String> list = new ArrayList<>();
+        list.add(mid);
+        client.kickoutFromGroup(0,gid,list);
+    }
+
     public void leaveGroup(String groupId) throws Exception{
         client.leaveGroup(0,groupId);
     }
