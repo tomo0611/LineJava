@@ -39,10 +39,17 @@ Main.javaを編集します
 ```
 // LINEClientの作成
 LINEClient client = new LINEClient("authtoken");
-//テキスト送信
-client.sendText("宛先", "メッセージ");
+//To send text msg
+client.sendText("to", "message");
 //テキスト送信にも使用可能だが、より高度なメッセージの送信に使う
-client.sendMessage("宛先", new Message().setTo("宛先").setText("メッセージ"));
+client.sendMessage(new Message().setTo("to").setText("message"));
+//Mention
+ArrayList<String> list = new ArrayList<>();
+list.add(mid);
+list.add(mid);
+client.sendMessageWithMention(op.message.to,"message",list,"\n");
+//or...
+client.sendMessageWithMention(op.message.to,"message",list);
 ```
 
 LINEClient.java内にある関数が利用可能です
