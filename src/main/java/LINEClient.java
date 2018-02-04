@@ -1,6 +1,7 @@
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -8,7 +9,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LINEClient {
 
@@ -163,6 +167,38 @@ public class LINEClient {
 
     public void sendMessage(Message msg) throws Exception{
         client.sendMessage(0,msg);
+    }
+
+    public void sendMessageWithMention(String to,String msg, ArrayList<String> mids) throws Exception{
+        List<Contact> contacts = client.getContacts(mids);
+        Map<String,String> map = new HashMap<>();
+        String message = "";
+        int pointer = 0;
+        JSONArray jsonArray = new JSONArray();
+        for(Contact c : contacts){
+            String text = "@"+c.displayName;
+            message = message + text;
+            jsonArray.put(new JSONObject().put("S",pointer+"").put("E",(pointer + text.split("").length)+"").put("M",c.mid));
+            pointer = pointer + text.split("").length;
+        }
+        map.put("MENTION",new JSONObject().put("MENTIONEES",jsonArray).toString());
+        client.sendMessage(0,new Message().setTo(to).setContentMetadata(map).setText(message+msg));
+    }
+
+    public void sendMessageWithMention(String to,String msg, ArrayList<String> mids,String space) throws Exception{
+        List<Contact> contacts = client.getContacts(mids);
+        Map<String,String> map = new HashMap<>();
+        String message = "";
+        int pointer = 0;
+        JSONArray jsonArray = new JSONArray();
+        for(Contact c : contacts){
+            String text = "@"+c.displayName;
+            message = message + text + space;
+            jsonArray.put(new JSONObject().put("S",pointer+"").put("E",(pointer + text.split("").length)+"").put("M",c.mid));
+            pointer = pointer + text.split("").length + space.split("").length;
+        }
+        map.put("MENTION",new JSONObject().put("MENTIONEES",jsonArray).toString());
+        client.sendMessage(0,new Message().setTo(to).setContentMetadata(map).setText(message+msg));
     }
 
     public void setGroupName(String groupId,String name) throws Exception{

@@ -29,6 +29,8 @@ public class Main {
     private static JSONObject en;
     private static String default_lang = "en";
 
+    private static LINEClient client;
+
     public static void main(String[] args) throws Exception {
         System.out.println(ANSI_CYAN + "(*´ヮ｀)< LineAPI for JAVA");
         System.out.println(ANSI_BLUE + "version " + ANSI_RESET + ":" + ANSI_GREEN + "1.0 beta");
@@ -43,16 +45,17 @@ public class Main {
         }
 
         String token = "";
-        /*if (args.length == 0) {
+        if (args.length == 0) {
             String authtoken = loginByQRCode().authToken;
             token = authtoken;
             System.out.println("これからauthtokenを実行時の引数に追加してください");
             System.out.println("例：java -jar line.jar authtoken");
         } else {
             token = args[0];
-        }*/
+        }
         System.out.println("Try this token : " + token);
-        LINEClient client = new LINEClient(LINEClient.LoginBy.QRCODE,"");
+        client = new LINEClient(LINEClient.LoginBy.TOKEN,token);
+        token = client.authtoken;
         System.out.println("displayName : " + client.getProfile().displayName);
         System.out.println("mid : " + client.getProfile().mid);
         System.out.println("authtoken : " + client.authtoken + "\n");
@@ -127,6 +130,13 @@ public class Main {
                                 }
                                 break;
                             case SEND_MESSAGE:
+                                if(op.message.text.equals("test")){
+                                    ArrayList<String> list = new ArrayList<>();
+                                    client.sendMessageWithMention(op.message.to,"Hey!",list,"\n");
+                                }else{
+                                    System.out.println(op.message.contentMetadata);
+                                }
+                                break;
                             case RECEIVE_MESSAGE:
                                 if (op.message.contentType.equals(ContentType.NONE)) {
                                     if(fix_spam.containsKey(op.message.to)) {
@@ -135,8 +145,8 @@ public class Main {
                                                 fix_spam.remove(op.message.to);
                                                 fix_spam.put(op.message.to, op.message.createdTime);
                                                 String msg = getString("help_message", getLangCodeByGid(op.message.to))
-                                                        .replace("%d", "2018-02-03 00:36")
-                                                        .replace("%b", "15048")
+                                                        .replace("%d", "2018-02-04 16:41")
+                                                        .replace("%b", "15062")
                                                         .replace("%t", "RELEASE")
                                                         .replace("%supporturl", "https://twitter.com/kaoru_nish");
                                                 if (op.message.toType == MIDType.GROUP) {
